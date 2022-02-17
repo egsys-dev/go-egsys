@@ -10,6 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func Inicio(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Bem Vindo API"})
+
+}
+
 func ListFleets(c *gin.Context) {
 	var fleet []models.Fleet
 	//Falta retornar o model sem os relacionamentos

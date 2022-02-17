@@ -8,6 +8,7 @@ import (
 func HandleRequests() {
 	r := gin.Default()
 
+	r.GET("/", controllers.Inicio)
 	r.GET("/fleets", controllers.ListFleets)
 	r.POST("/fleets", controllers.CreateFleets)
 	r.GET("/fleets/:id/alerts", controllers.GetFleets)

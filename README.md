@@ -2,7 +2,9 @@
 
 # PROCESSO SELETIVO :: Vehicle Tracking System
 
-Nesse Processo de Seleção o candidato desenvolveu uma API básica para o rastreamento de veículos
+Nesse Processo de Seleção o candidato desenvolveu uma API básica para o rastreamento de veículos.
+
+Está API foi desenvolvida usando as seguintes tecnologias: Golang, GORM e GIN
 
 ## REQUISITOS
 
