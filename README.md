@@ -33,7 +33,7 @@ docker-compose up -d
 ```
 
 ### Colocando a aplicação no ar :
-1. Com Goland instalado basta digitar o seguinte comando, na raiz do projeto:
+1. Com Golang instalado basta digitar o seguinte comando, na raiz do projeto:
 ```
 go run main.go
 ```
