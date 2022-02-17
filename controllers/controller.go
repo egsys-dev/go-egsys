@@ -2,82 +2,154 @@ package controllers
 
 import (
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"github.com/fabiom2211/go-egsys/database"
 	"github.com/fabiom2211/go-egsys/models"
 	"github.com/gin-gonic/gin"
 )
 
-func ExibeTodosAlunos(c *gin.Context) {
-	var alunos []models.Aluno
-	database.DB.Find(&alunos)
-	c.JSON(200, alunos)
+func ListFleets(c *gin.Context) {
+	var fleet []models.Fleet
+	//Falta retornar o model sem os relacionamentos
+	database.DB.Find(&fleet)
+	c.JSON(http.StatusOK, fleet)
 }
 
-func Saudacao(c *gin.Context) {
-	nome := c.Params.ByName("nome")
-	c.JSON(200, gin.H{
-		"API diz:": "E ai " + nome + ", tudo beleza?",
-	})
-}
-
-func CriaNovoAluno(c *gin.Context) {
-	var aluno models.Aluno
-	if err := c.ShouldBindJSON(&aluno); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error()})
-		return
-	}
-	database.DB.Create(&aluno)
-	c.JSON(http.StatusOK, aluno)
-}
-
-func BuscaAlunoPorID(c *gin.Context) {
-	var aluno models.Aluno
-	id := c.Params.ByName("id")
-	database.DB.First(&aluno, id)
-
-	if aluno.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{
-			"Not found": "Aluno não encontrado"})
-		return
-	}
-
-	c.JSON(http.StatusOK, aluno)
-}
-
-func DeletaAluno(c *gin.Context) {
-	var aluno models.Aluno
-	id := c.Params.ByName("id")
-	database.DB.Delete(&aluno, id)
-	c.JSON(http.StatusOK, gin.H{"data": "Aluno deletado com sucesso"})
-}
-
-func EditaAluno(c *gin.Context) {
-	var aluno models.Aluno
-	id := c.Params.ByName("id")
-	database.DB.First(&aluno, id)
-
-	if err := c.ShouldBindJSON(&aluno); err != nil {
+func CreateFleets(c *gin.Context) {
+	var fleet models.Fleet
+	if err := c.ShouldBindJSON(&fleet); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error()})
 		return
 	}
 
-	database.DB.Model(&aluno).UpdateColumns(aluno)
-	c.JSON(http.StatusOK, aluno)
-}
-
-func BuscaAlunoPorCPF(c *gin.Context) {
-	var aluno models.Aluno
-	cpf := c.Param("cpf")
-	database.DB.Where(&models.Aluno{CPF: cpf}).First(&aluno)
-
-	if aluno.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{
-			"Not found": "Aluno não encontrado"})
+	if fleet.Max_speed == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "A velocidade deve ser maior que 0."})
 		return
 	}
 
-	c.JSON(http.StatusOK, aluno)
+	database.DB.Create(&fleet)
+
+	if fleet.Fleet_id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Fleets não cadastrado"})
+		return
+	} else {
+		c.JSON(http.StatusCreated, gin.H{
+			"id": fleet.Fleet_id})
+		return
+	}
+
+}
+
+func GetFleets(c *gin.Context) {
+	var fleetAlert models.FleetAlert
+	var fleetAlertList []models.FleetAlert
+
+	fleetAlert.Fleet_id, _ = strconv.Atoi(c.Param("id"))
+
+	if fleetAlert.Fleet_id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	database.DB.Where(&models.FleetAlert{Fleet_id: fleetAlert.Fleet_id}).Find(&fleetAlertList)
+
+	if len(fleetAlertList) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+	c.JSON(http.StatusOK, fleetAlertList)
+}
+
+func CreateFleetAlerts(c *gin.Context) {
+	var fleet models.FleetAlert
+	var fleetAlert models.FleetAlert
+
+	if err := c.ShouldBindJSON(&fleetAlert); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error()})
+		return
+	} else if fleetAlert.Fleet_id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+	//valida URL
+	u, err := url.Parse(fleetAlert.Webhook)
+	if !(err == nil && u.Scheme != "" && u.Host != "") {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	fleet.Fleet_id, _ = strconv.Atoi(c.Param("id"))
+	database.DB.First(fleet.Fleet_id)
+	if fleet.Fleet_id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	fleetAlert.Fleet_id = fleet.Fleet_id
+	database.DB.Create(&fleetAlert)
+
+	if fleetAlert.Fleet_alert_id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	} else {
+		c.JSON(http.StatusCreated, gin.H{
+			"id": fleetAlert.Fleet_alert_id})
+		return
+	}
+
+}
+
+func ListVehicles(c *gin.Context) {
+	var vehicles []models.Vehicle
+	database.DB.Find(&vehicles)
+	//Precisa verificar se a velocidade do veiculo está preenchida, caso não esteja precisa pegar a velocidade da frota
+	c.JSON(http.StatusOK, vehicles)
+}
+
+func CreateVehicles(c *gin.Context) {
+	var vehicle models.Vehicle
+	if err := c.ShouldBindJSON(&vehicle); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error()})
+		return
+	}
+
+	database.DB.Create(&vehicle)
+
+	if vehicle.Fleet_id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Vehicle não cadastrado"})
+		return
+	} else {
+		c.JSON(http.StatusCreated, gin.H{
+			"id": vehicle.Vehicle_id})
+		return
+	}
+}
+
+//Parei o teste aqui
+func GetVehiclesPosition(c *gin.Context) {
+	var fleetAlert models.Vehicle
+	var fleetAlertList []models.Vehicle
+
+	fleetAlert.Fleet_id, _ = strconv.Atoi(c.Param("id"))
+
+	if fleetAlert.Fleet_id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	database.DB.Where(&models.FleetAlert{Fleet_id: fleetAlert.Fleet_id}).Find(&fleetAlertList)
+
+	if len(fleetAlertList) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+	c.JSON(http.StatusOK, fleetAlertList)
 }
