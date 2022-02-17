@@ -39,10 +39,13 @@ go run main.go
 #### Acesso:
 * EGSYS: http://localhost:8077/
 
-##### Modelo:
-![alt text](https://github.com/fabiorosa/go-egsys/doc/Diagram.png?raw=true)
+##### Documento:
+1. Proposta de Desenvolvimento [GitHub Pages](https://github.com/fabiom2211/go-egsys/blob/main/doc/EGSYS-Golang-Challenge.pdf)
 
-## Sobre API
+2. Diagrama
+![alt text](https://github.com/fabiom2211/go-egsys/blob/main/doc/Diagram.png?raw=true)
+
+### Sobre API
 1. Listar todas as Frotas cadastradas (GET)
 ```
 http://localhost:8077/fleets
@@ -51,3 +54,4 @@ http://localhost:8077/fleets
 ```
 http://localhost:8077/fleets
 ```
+3. (.....)
