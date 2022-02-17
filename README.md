@@ -42,8 +42,11 @@ go run main.go
 ##### Documento:
 1. Proposta de Desenvolvimento [GitHub Pages](https://github.com/fabiom2211/go-egsys/blob/main/doc/EGSYS-Golang-Challenge.pdf)
 
-2. Diagrama
+
+##### Diagrama:
+
 ![alt text](https://github.com/fabiom2211/go-egsys/blob/main/doc/Diagram.png?raw=true)
+
 
 ### Sobre API
 1. Listar todas as Frotas cadastradas (GET)
